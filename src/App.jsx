@@ -586,7 +586,7 @@ function App() {
                 <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm">
-                    O pagamento pode ser realizado na <strong>secretaria da escola</strong> ou pelo WhatsApp <span translate="no">(84) 98145-0229</span>.
+                    Não haverá aula neste dia para as turmas do 8º e 9º ano.
                   </p>
                 </div>
               </div>    
@@ -594,7 +594,7 @@ function App() {
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm text-red-700 font-semibold" translate="no">
-                    Pagamento obrigatório até 03/03/2026. Após essa data não será possível estender o prazo.
+                    Pagamento obrigatório até dia 27/02/2026. Após essa data não será possível estender o prazo.
                   </p>
                 </div>
               </div>  
@@ -1072,6 +1072,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
