@@ -42,8 +42,8 @@ import jardimImage from './assets/happy3.jpg';
 
 function App() {
   // ⚙️ CONFIGURAÇÃO
-  const SERIES_DISPONIVEIS = ['Grupo IV','Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano'];
-
+  const SERIES_DISPONIVEIS = ['6º ano','7º ano','8º ano','9º ano'];
+// const SERIES_DISPONIVEIS = ['Grupo IV','Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano', '6º ano','7º ano','8º ano','9º ano' ];
   // ============================================
   // TAXAS DE ANTECIPAÇÃO
   // ============================================
@@ -145,7 +145,7 @@ function App() {
       .ilike('nome_completo', `%${searchTerm}%`)
       .in('serie', SERIES_DISPONIVEIS);
 
-     query = query.in('serie', ['Grupo IV', 'Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano']);
+     query = query.in('serie', ['6º ano','7º ano','8º ano','9º ano']);
       
       if (selectedSerie) {
         query = query.eq('serie', selectedSerie);
@@ -1072,6 +1072,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
