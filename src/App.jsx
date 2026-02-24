@@ -43,7 +43,6 @@ import jardimImage from './assets/happy3.jpg';
 function App() {
   // ⚙️ CONFIGURAÇÃO
   const SERIES_DISPONIVEIS = ['Grupo IV','Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano'];
-  // const SERIES_DISPONIVEIS = ['Grupo IV','Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano','6º Ano', '7º Ano', '8º Ano' ,'9º Ano'];
 
   // ============================================
   // TAXAS DE ANTECIPAÇÃO
@@ -144,12 +143,10 @@ function App() {
       .from('alunos')
       .select('*')
       .ilike('nome_completo', `%${searchTerm}%`)
-      .in('serie', SERIES_DISPONIVEIS);  // ← usa a lista que você já tem
+      .in('serie', SERIES_DISPONIVEIS);
 
-     // Troque o .not() por .in() com as séries permitidas:
-    query = query.in('serie', ['Grupo IV', 'Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano']);
+     query = query.in('serie', ['Grupo IV', 'Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano']);
       
-      // Aplicar filtro de série se selecionado
       if (selectedSerie) {
         query = query.eq('serie', selectedSerie);
       }
@@ -218,11 +215,11 @@ function App() {
   };
 
   // ============================================
-  // CÁLCULO DE PREÇO - R$ 80,00 POR ALUNO
+  // CÁLCULO DE PREÇO - R$ 30,00 POR ALUNO
   // Até 3x no cartão com juros
   // ============================================
   const calculatePrice = () => {
-    const PRECO_BASE = 80.0;
+    const PRECO_BASE = 30.0;
     let valorTotal = PRECO_BASE;
     
     if (formData.paymentMethod === 'credit') {
@@ -335,7 +332,7 @@ function App() {
           ticketQuantity: 1, 
           amount: valorTotal,
           timestamp: new Date().toISOString(),
-          event: 'Amadeus-sitiodopicapau'
+          event: 'Amadeus-barcoescola-chamamare'
         })
       });
 
@@ -415,10 +412,10 @@ function App() {
       <section className="hero-section min-h-screen flex items-center justify-center text-white relative">
         <div className="text-center z-10 max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-            O Sítio do Picapau Amarelo
+            Barco Escola Chama Maré
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-90">
-            Espetáculo Teatral no Teatro Alberto Maranhão
+            Passeio Educativo no Rio Potengi — Natal/RN
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -433,11 +430,11 @@ function App() {
           <div className="mt-12 flex justify-center items-center space-x-8 text-sm">
             <div className="flex items-center">
               <Calendar className="h-5 w-5 mr-2" />
-              <span translate="no">17 de Março de 2026 (Terça-feira)</span>
+              <span translate="no">03 de Março de 2026 (Terça-feira)</span>
             </div>
             <div className="flex items-center">
               <MapPin className="h-5 w-5 mr-2" />
-              Teatro Alberto Maranhão
+              Barco Escola Chama Maré — Rio Potengi
             </div>
           </div>
         </div>
@@ -448,12 +445,10 @@ function App() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 gradient-text">Sobre o Evento</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            A Companhia Encantada de Teatro, em parceria com o projeto "A Escola Vai ao Teatro", 
-            apresentará o clássico musical "O Sítio do Picapau Amarelo" no Teatro Alberto Maranhão. 
-            O Sítio do Picapau Amarelo foi criado por Monteiro Lobato com base no folclore brasileiro, 
-            na cultura popular e na literatura infantil universal, reunindo personagens do imaginário 
-            nacional (como o Saci e a Cuca) e figuras de contos clássicos, integrados a um contexto 
-            rural brasileiro.
+            Realizaremos um passeio educativo no Barco Escola Chama Maré, localizado em Natal/RN, 
+            navegando pelo Rio Potengi. Esta é uma excelente oportunidade para os alunos aprenderem 
+            na prática sobre o ecossistema marinho e a preservação ambiental, vivenciando de perto 
+            a riqueza natural da nossa região.
             </p>
           </div>
 
@@ -463,25 +458,25 @@ function App() {
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
-                  <p>Espetáculo musical clássico da literatura brasileira</p>
+                  <p>Passeio educativo sobre o ecossistema marinho</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
-                  <p>Teatro Alberto Maranhão — um dos mais tradicionais da região</p>
+                  <p>Navegação pelo Rio Potengi em Natal/RN</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
-                  <p>Transporte de ônibus incluso (ida e volta)</p>
+                  <p>Aprendizado sobre preservação ambiental</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
-                  <p>Pipoca inclusa para os alunos</p>
+                  <p>Contato direto com a natureza e a cultura local</p>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <img src={interiorImage1} alt="Evento escolar" className="rounded-lg shadow-lg h-48 w-full object-cover" />         
-              <img src={interiorImage2} alt="Atividade cultural" className="rounded-lg shadow-lg h-48 w-full object-cover" />    
+              <img src={interiorImage2} alt="Atividade educativa" className="rounded-lg shadow-lg h-48 w-full object-cover" />    
               <img src={jardimImage} alt="Passeio escolar" className="rounded-lg shadow-lg col-span-2 h-64 w-full object-cover" />
             </div>
           </div>
@@ -503,17 +498,14 @@ function App() {
                   <Clock className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle>Data e Horário</CardTitle>
-                <CardDescription translate="no">17 de Março de 2026</CardDescription>
+                <CardDescription translate="no">03 de Março de 2026</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-center" translate="no">
                   Saída da escola às 13h
                 </p>
                <p className="text-sm text-center" translate="no">
-                  Retorna à escola às 17h
-                </p>
-                <p className="text-sm text-center font-semibold text-red-600 mt-2">
-                  Neste dia NÃO HAVERÁ AULA
+                  Retorno à escola às 17:10
                 </p>
               </CardContent>
             </Card>
@@ -526,10 +518,10 @@ function App() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-center">
-                  Teatro Alberto Maranhão
+                  Barco Escola Chama Maré
                 </p>
                 <p className="text-xs text-center text-muted-foreground mt-1">
-                  Classificação: Livre
+                  Rio Potengi — Natal/RN
                 </p>
               </CardContent>
             </Card>
@@ -542,7 +534,7 @@ function App() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-center">
-                  Ônibus incluso na taxa (ida e volta)
+                  Encontro na escola às 13h
                 </p>
               </CardContent>
             </Card>
@@ -551,11 +543,14 @@ function App() {
                 <div className="mx-auto mb-4 p-3 bg-orange-100 rounded-full w-fit">
                   <Users className="h-8 w-8 text-orange-600" />
                 </div>
-                <CardTitle>Alunos</CardTitle>
+                <CardTitle>Confirmação</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-center">
-                  Todos os turnos (matutino e vespertino)
+                  Confirme até 27/02 via WhatsApp
+                </p>
+                <p className="text-xs text-center text-muted-foreground mt-1" translate="no">
+                  (84) 98145-0229
                 </p>
               </CardContent>
             </Card>
@@ -575,7 +570,7 @@ function App() {
                 <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm">
-                    Neste dia (<span translate="no">17/03</span>) <strong>NÃO HAVERÁ AULA</strong>. Todos os alunos (matutino e vespertino) deverão estar na escola às <span translate="no">13 horas</span>.
+                    O encontro será na <strong>escola às 13h</strong>. O retorno está previsto para às <span translate="no">17:10</span>.
                   </p>
                 </div>
               </div>
@@ -583,7 +578,7 @@ function App() {
                 <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm">
-                    O aluno deverá vir com o <strong>FARDAMENTO COMPLETO</strong>, <strong>GARRAFINHA DE ÁGUA</strong> e <strong>LANCHE</strong>. 
+                    <strong>Confirmação de presença obrigatória</strong> (Sim ou Não) até o dia <span translate="no">27/02</span> pelo WhatsApp <span translate="no">(84) 98145-0229</span>.
                   </p>
                 </div>
               </div>
@@ -591,7 +586,7 @@ function App() {
                 <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm">
-                    A taxa inclui: <strong>entrada no teatro, transporte (ônibus) e pipoca</strong>.
+                    O pagamento pode ser realizado na <strong>secretaria da escola</strong> ou pelo WhatsApp <span translate="no">(84) 98145-0229</span>.
                   </p>
                 </div>
               </div>    
@@ -599,7 +594,7 @@ function App() {
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <p className="text-sm text-red-700 font-semibold" translate="no">
-                    Pagamento obrigatório até 12/03/2026. Após essa data não será possível estender o prazo.
+                    Pagamento obrigatório até 03/03/2026. Após essa data não será possível estender o prazo.
                   </p>
                 </div>
               </div>  
@@ -613,13 +608,13 @@ function App() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Inscrição e Pagamento</h2>
             <p className="text-lg text-muted-foreground">
-              Taxa por aluno — inclui entrada, ônibus e pipoca
+              Taxa por aluno — Passeio no Barco Escola Chama Maré
             </p>
           </div>
 
           <Card className="mb-8">
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl text-primary" translate="no">R$ 80,00</CardTitle>
+              <CardTitle className="text-3xl text-primary" translate="no">R$ 30,00</CardTitle>
               <CardDescription>por ALUNO</CardDescription>
             </CardHeader>
             <CardContent>
@@ -629,15 +624,15 @@ function App() {
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-accent mr-2" />
-                      Entrada no Teatro Alberto Maranhão
+                      Passeio no Barco Escola Chama Maré
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-accent mr-2" />
-                      Transporte de ônibus (ida e volta)
+                      Experiência educativa sobre ecossistema marinho
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-accent mr-2" />
-                      Pipoca
+                      Navegação pelo Rio Potengi
                     </li>
                   </ul>
                 </div>
@@ -646,7 +641,7 @@ function App() {
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <Shield className="h-4 w-4 text-destructive mr-2 mt-0.5" />
-                      <span translate="no">Pagamento obrigatório até 12 de março de 2026</span>
+                      <span translate="no">Pagamento obrigatório até 03 de março de 2026</span>
                     </li>
                     <li className="flex items-start">
                       <Shield className="h-4 w-4 text-destructive mr-2 mt-0.5" />
@@ -658,7 +653,7 @@ function App() {
                     </li>
                     <li className="flex items-start">
                       <Shield className="h-4 w-4 text-destructive mr-2 mt-0.5" />
-                      Após o pagamento, não será  permitido o reembolso. 
+                      Após o pagamento, não será permitido o reembolso
                     </li>
                   </ul>
                 </div>
@@ -922,7 +917,7 @@ function App() {
                           <div className="flex items-center space-x-2">
                             <span className="text-lg font-bold">PIX</span>
                             <span className="text-sm" translate="no">
-                              R$ 80,00 (sem taxas)
+                              R$ 30,00 (sem taxas)
                             </span>
                           </div>
                         </div>
@@ -980,7 +975,7 @@ function App() {
                       <div className="text-center" translate="no">
                         <h4 className="text-lg font-bold text-orange-800 mb-1">Valor Total</h4>
                         <div className="text-sm text-gray-600 mb-1">
-                          1 aluno × R$ 80,00
+                          1 aluno × R$ 30,00
                         </div>
                         <div className="text-2xl font-bold text-orange-900">
                           R$ {valorTotal.toFixed(2).replace('.', ',')}
@@ -1068,7 +1063,7 @@ function App() {
             © 2026 Escola Centro Educacional Amadeus. Todos os direitos reservados.
           </p>
           <p className="text-xs mt-2 opacity-80" translate="no">
-            O Sítio do Picapau Amarelo - Teatro Alberto Maranhão - 17 de Março de 2026
+            Barco Escola Chama Maré — Rio Potengi — 03 de Março de 2026
           </p>
         </div>
       </footer>
@@ -1077,7 +1072,6 @@ function App() {
 }
 
 export default App;
-
 
 
 
