@@ -43,12 +43,12 @@ import jardimImage from './assets/happy3.jpg';
 function App() {
   // ⚙️ CONFIGURAÇÃO
   const SERIES_DISPONIVEIS = ['6º Ano','7º Ano','8º Ano','9º Ano'];
-// const SERIES_DISPONIVEIS = ['Grupo IV','Grupo V', 'Maternal(3)', 'Maternalzinho(2)', '1º Ano', '2º Ano', '3º Ano', '4º Ano', '5º Ano', '6º ano','7º ano','8º ano','9º ano' ];
+
   // ============================================
   // TAXAS DE ANTECIPAÇÃO
   // ============================================
-  const TAXA_ANTECIPACAO_VISTA = 0.0115;    // 1,15% - cartão à vista
-  const TAXA_ANTECIPACAO_PARCELADO = 0.016; // 1,6% ao mês - parcelado
+  const TAXA_ANTECIPACAO_VISTA = 0.0115;
+  const TAXA_ANTECIPACAO_PARCELADO = 0.016;
 
   const calcularTaxaAntecipacao = (valorBase, numParcelas) => {
     if (numParcelas === 1) {
@@ -76,37 +76,29 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [inscriptionSuccess, setInscriptionSuccess] = useState(false);
   
-  // Estados para validação de CPF
   const [cpfError, setCpfError] = useState('');
   const [cpfValid, setCpfValid] = useState(false);
 
-  // Estados para busca de alunos no Supabase
   const [studentSearch, setStudentSearch] = useState('');
   const [studentsList, setStudentsList] = useState([]);
   const [showStudentDropdown, setShowStudentDropdown] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  // SEM FILTRO DE TURNO - Todos os alunos (matutino e vespertino)
   const [selectedSerie, setSelectedSerie] = useState('');
 
-  // Função para validar CPF
   const validarCPF = (cpf) => {
     cpf = cpf.replace(/[^\d]/g, '');
-    
     if (cpf.length !== 11) return false;
     if (/^(\d)\1{10}$/.test(cpf)) return false;
-    
     let soma = 0;
     let resto;
-    
     for (let i = 1; i <= 9; i++) {
       soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
     }
     resto = (soma * 10) % 11;
     if (resto === 10 || resto === 11) resto = 0;
     if (resto !== parseInt(cpf.substring(9, 10))) return false;
-    
     soma = 0;
     for (let i = 1; i <= 10; i++) {
       soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
@@ -114,7 +106,6 @@ function App() {
     resto = (soma * 10) % 11;
     if (resto === 10 || resto === 11) resto = 0;
     if (resto !== parseInt(cpf.substring(10, 11))) return false;
-    
     return true;
   };
 
@@ -129,23 +120,21 @@ function App() {
     }, 100);
   };
 
-  // Função para buscar alunos no Supabase - SEM FILTRO DE TURNO (todos participam)
   const searchStudents = async (searchTerm) => {
     if (searchTerm.length < 2) {
       setStudentsList([]);
       setShowStudentDropdown(false);
       return;
     }
-
     setIsSearching(true);
     try {
-    let query = supabase
-      .from('alunos')
-      .select('*')
-      .ilike('nome_completo', `%${searchTerm}%`)
-      .in('serie', SERIES_DISPONIVEIS);
+      let query = supabase
+        .from('alunos')
+        .select('*')
+        .ilike('nome_completo', `%${searchTerm}%`)
+        .in('serie', SERIES_DISPONIVEIS);
 
-     query = query.in('serie', ['6º Ano','7º Ano','8º Ano','9º Ano']);
+      query = query.in('serie', ['6º Ano','7º Ano','8º Ano','9º Ano']);
       
       if (selectedSerie) {
         query = query.eq('serie', selectedSerie);
@@ -156,7 +145,6 @@ function App() {
         .limit(10);
 
       if (error) throw error;
-      
       setStudentsList(data || []);
       setShowStudentDropdown(data && data.length > 0);
     } catch (error) {
@@ -168,7 +156,6 @@ function App() {
     }
   };
 
-  // Função para selecionar um aluno
   const selectStudent = (student) => {
     setSelectedStudent(student);
     setFormData(prev => ({
@@ -182,12 +169,10 @@ function App() {
     setStudentsList([]);
   };
 
-  // Função para lidar com mudança no campo de busca
   const handleStudentSearchChange = (e) => {
     const value = e.target.value;
     setStudentSearch(value);
     searchStudents(value);
-    
     if (!value) {
       setSelectedStudent(null);
       setFormData(prev => ({
@@ -200,7 +185,6 @@ function App() {
     }
   };
 
-  // Limpar seleção de aluno
   const clearStudentSelection = () => {
     setSelectedStudent(null);
     setStudentSearch('');
@@ -215,32 +199,33 @@ function App() {
   };
 
   // ============================================
-  // CÁLCULO DE PREÇO - R$ 30,00 POR ALUNO
+  // CÁLCULO DE PREÇO
+  // PIX: R$ 30,00 | Cartão: R$ 35,00 (base)
   // Até 3x no cartão com juros
   // ============================================
+  const PRECO_PIX = 30.0;
+  const PRECO_CARTAO = 35.0;
+
   const calculatePrice = () => {
-    const PRECO_BASE = 30.0;
-    let valorTotal = PRECO_BASE;
+    let valorTotal;
     
     if (formData.paymentMethod === 'credit') {
+      valorTotal = PRECO_CARTAO;
       let taxaPercentual = 0;
       const taxaFixa = 0.49;
       const parcelas = parseInt(formData.installments) || 1;
       
       if (parcelas === 1) {
-        taxaPercentual = 0.0299;           // 2,99% à vista
+        taxaPercentual = 0.0299;
       } else if (parcelas >= 2 && parcelas <= 3) {
-        taxaPercentual = 0.0349;           // 3,49% de 2 a 3 parcelas
+        taxaPercentual = 0.0349;
       }
       
-      // Taxa do cartão
       const taxaCartao = valorTotal * taxaPercentual;
-      
-      // Taxa de antecipação
       const taxaAntecipacao = calcularTaxaAntecipacao(valorTotal, parcelas);
-      
-      // Valor total = base + taxa cartão + taxa fixa + taxa antecipação
       valorTotal = valorTotal + taxaCartao + taxaFixa + taxaAntecipacao;
+    } else {
+      valorTotal = PRECO_PIX;
     }
     
     const valorParcela = valorTotal / (parseInt(formData.installments) || 1);
@@ -251,18 +236,14 @@ function App() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
     if (name === 'cpf') {
       const cpfValue = value
         .replace(/\D/g, '')
         .replace(/(\d{3})(\d)/, '$1.$2')
         .replace(/(\d{3})(\d)/, '$1.$2')
         .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-
       setFormData(prev => ({ ...prev, [name]: cpfValue }));
-      
       const cpfSemMascara = cpfValue.replace(/[^\d]/g, '');
-      
       if (cpfSemMascara.length === 0) {
         setCpfError('');
         setCpfValid(false);
@@ -288,37 +269,26 @@ function App() {
       alert('Por favor, selecione um aluno da lista.');
       return false;
     }
-
     const cpfSemMascara = formData.cpf.replace(/[^\d]/g, '');
-    
     if (!cpfSemMascara || cpfSemMascara.length !== 11) {
       alert('Por favor, preencha um CPF válido.');
       return false;
     }
-    
     if (!validarCPF(cpfSemMascara)) {
       alert('CPF inválido. Verifique os números digitados.');
       return false;
     }
-    
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+    if (!validateForm()) return;
     setIsProcessing(true);
-
     try {  
       const response = await fetch('https://webhook.escolaamadeus.com/webhook/amadeuseventos', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           studentName: formData.studentName,
           studentGrade: formData.studentGrade,
@@ -335,18 +305,14 @@ function App() {
           event: 'Amadeus-barcoescola-chamamare'
         })
       });
-
       if (response.ok) {
         const responseData = await response.json();
         console.log('Resposta do n8n:', responseData);
-        
         if (responseData.success === false) {
           alert(responseData.message || 'Erro ao processar dados. Tente novamente.');
           return;
         }
-        
         setInscriptionSuccess(true);
-  
         setTimeout(() => {
           if (responseData.paymentUrl) {
             window.location.href = responseData.paymentUrl;
@@ -501,12 +467,8 @@ function App() {
                 <CardDescription translate="no">03 de Março de 2026</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-center" translate="no">
-                  Saída da escola às 13h
-                </p>
-               <p className="text-sm text-center" translate="no">
-                  Retorno à escola às 17:10
-                </p>
+                <p className="text-sm text-center" translate="no">Saída da escola às 13h</p>
+                <p className="text-sm text-center" translate="no">Retorno à escola às 17:10</p>
               </CardContent>
             </Card>
             <Card className="card-hover">
@@ -517,12 +479,8 @@ function App() {
                 <CardTitle>Local</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-center">
-                  Barco Escola Chama Maré
-                </p>
-                <p className="text-xs text-center text-muted-foreground mt-1">
-                  Rio Potengi — Natal/RN
-                </p>
+                <p className="text-sm text-center">Barco Escola Chama Maré</p>
+                <p className="text-xs text-center text-muted-foreground mt-1">Rio Potengi — Natal/RN</p>
               </CardContent>
             </Card>
             <Card className="card-hover">
@@ -533,9 +491,7 @@ function App() {
                 <CardTitle>Transporte</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-center">
-                  Encontro na escola às 13h
-                </p>
+                <p className="text-sm text-center">Encontro na escola às 13h</p>
               </CardContent>
             </Card>
             <Card className="card-hover">
@@ -546,12 +502,8 @@ function App() {
                 <CardTitle>Confirmação</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-center">
-                  Confirme até 27/02 via WhatsApp
-                </p>
-                <p className="text-xs text-center text-muted-foreground mt-1" translate="no">
-                  (84) 98145-0229
-                </p>
+                <p className="text-sm text-center">Confirme até 27/02 via WhatsApp</p>
+                <p className="text-xs text-center text-muted-foreground mt-1" translate="no">(84) 98145-0229</p>
               </CardContent>
             </Card>
           </div>
@@ -563,7 +515,6 @@ function App() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">IMPORTANTE - LEIA</h2>
           </div>
-
           <div className="mt-8 p-6 bg-accent/10 rounded-lg border border-accent/20">
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
@@ -614,8 +565,8 @@ function App() {
 
           <Card className="mb-8">
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl text-primary" translate="no">R$ 30,00</CardTitle>
-              <CardDescription>por ALUNO</CardDescription>
+              <CardTitle className="text-3xl text-primary" translate="no">R$ 30,00 <span className="text-lg text-muted-foreground font-normal">no PIX</span></CardTitle>
+              <CardDescription>por ALUNO | R$ 35,00 no cartão</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
@@ -641,7 +592,7 @@ function App() {
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <Shield className="h-4 w-4 text-destructive mr-2 mt-0.5" />
-                      <span translate="no">Pagamento obrigatório até 03 de março de 2026</span>
+                      <span translate="no">Pagamento obrigatório até 27 de fevereiro de 2026</span>
                     </li>
                     <li className="flex items-start">
                       <Shield className="h-4 w-4 text-destructive mr-2 mt-0.5" />
@@ -754,7 +705,6 @@ function App() {
                           </div>
                         )}
 
-                        {/* Dropdown de resultados */}
                         {showStudentDropdown && studentsList.length > 0 && !selectedStudent && (
                           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                             {studentsList.map((student) => (
@@ -788,29 +738,14 @@ function App() {
                         )}
                       </div>
 
-                      {/* Campos preenchidos automaticamente */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="studentGrade">Série do Aluno *</Label>
-                          <Input
-                            id="studentGrade"
-                            name="studentGrade"
-                            value={formData.studentGrade}
-                            disabled
-                            className="bg-gray-100 cursor-not-allowed"
-                            placeholder="Será preenchido automaticamente"
-                          />
+                          <Input id="studentGrade" name="studentGrade" value={formData.studentGrade} disabled className="bg-gray-100 cursor-not-allowed" placeholder="Será preenchido automaticamente" />
                         </div>
                         <div>
                           <Label htmlFor="studentClass">Turma do Aluno *</Label>
-                          <Input
-                            id="studentClass"
-                            name="studentClass"
-                            value={formData.studentClass}
-                            disabled
-                            className="bg-gray-100 cursor-not-allowed"
-                            placeholder="Será preenchido automaticamente"
-                          />
+                          <Input id="studentClass" name="studentClass" value={formData.studentClass} disabled className="bg-gray-100 cursor-not-allowed" placeholder="Será preenchido automaticamente" />
                         </div>
                       </div>
                     </div>
@@ -825,38 +760,16 @@ function App() {
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="parentName">Nome do Responsável *</Label>
-                        <Input
-                          id="parentName"
-                          name="parentName"
-                          value={formData.parentName}
-                          onChange={handleInputChange}
-                          required
-                          placeholder="Nome completo do responsável"
-                        />
+                        <Input id="parentName" name="parentName" value={formData.parentName} onChange={handleInputChange} required placeholder="Nome completo do responsável" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="phone">Telefone/WhatsApp *</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="(84) 99999-9999"
-                          />
+                          <Input id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="(84) 99999-9999" />
                         </div>
                         <div>
                           <Label htmlFor="email">E-mail *</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="seu@email.com"
-                          />
+                          <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required placeholder="seu@email.com" />
                         </div>
                         <div>
                           <Label htmlFor="cpf">CPF do Responsável *</Label>
@@ -868,24 +781,16 @@ function App() {
                             required
                             placeholder="000.000.000-00"
                             maxLength="14"
-                            className={`${
-                              formData.cpf && cpfError 
-                                ? 'border-red-500 bg-red-50' 
-                                : formData.cpf && cpfValid 
-                                ? 'border-green-500 bg-green-50' 
-                                : ''
-                            }`}
+                            className={`${formData.cpf && cpfError ? 'border-red-500 bg-red-50' : formData.cpf && cpfValid ? 'border-green-500 bg-green-50' : ''}`}
                           />
                           {cpfError && (
                             <p className="text-red-500 text-sm mt-1 flex items-center">
-                              <span className="mr-1">⚠️</span>
-                              {cpfError}
+                              <span className="mr-1">⚠️</span>{cpfError}
                             </p>
                           )}
                           {cpfValid && !cpfError && (
                             <p className="text-green-600 text-sm mt-1 flex items-center">
-                              <span className="mr-1">✅</span>
-                              CPF válido
+                              <span className="mr-1">✅</span>CPF válido
                             </p>
                           )}
                         </div>
@@ -899,50 +804,33 @@ function App() {
                     
                     <div className="space-y-3 mb-6">
                       <div 
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          formData.paymentMethod === 'pix' 
-                            ? 'border-orange-400 bg-orange-50' 
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.paymentMethod === 'pix' ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'pix', installments: 1 }))}
                       >
                         <div className="flex items-center">
-                          <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
-                            formData.paymentMethod === 'pix' ? 'border-orange-400 bg-orange-400' : 'border-gray-300'
-                          }`}>
-                            {formData.paymentMethod === 'pix' && (
-                              <div className="w-full h-full rounded-full bg-orange-400"></div>
-                            )}
+                          <div className={`w-4 h-4 rounded-full border-2 mr-3 ${formData.paymentMethod === 'pix' ? 'border-orange-400 bg-orange-400' : 'border-gray-300'}`}>
+                            {formData.paymentMethod === 'pix' && <div className="w-full h-full rounded-full bg-orange-400"></div>}
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-lg font-bold">PIX</span>
-                            <span className="text-sm" translate="no">
-                              R$ 30,00 (sem taxas)
-                            </span>
+                            <span className="text-sm" translate="no">R$ 30,00 (sem taxas)</span>
                           </div>
                         </div>
                       </div>
 
                       <div 
-                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                          formData.paymentMethod === 'credit' 
-                            ? 'border-orange-400 bg-orange-50' 
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.paymentMethod === 'credit' ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'credit' }))}
                       >
                         <div className="flex items-center">
-                          <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
-                            formData.paymentMethod === 'credit' ? 'border-orange-400 bg-orange-400' : 'border-gray-300'
-                          }`}>
-                            {formData.paymentMethod === 'credit' && (
-                              <div className="w-full h-full rounded-full bg-orange-400"></div>
-                            )}
+                          <div className={`w-4 h-4 rounded-full border-2 mr-3 ${formData.paymentMethod === 'credit' ? 'border-orange-400 bg-orange-400' : 'border-gray-300'}`}>
+                            {formData.paymentMethod === 'credit' && <div className="w-full h-full rounded-full bg-orange-400"></div>}
                           </div>
                           <div>
                             <div className="flex items-center space-x-2">
                               <span className="text-sm">💳</span>
                               <span className="text-sm font-medium">Cartão de Crédito</span>
+                              <span className="text-sm font-semibold" translate="no">R$ 35,00</span>
                             </div>
                             <div className="text-xs text-green-600 ml-6 font-medium">
                               Parcele em até 3x (com juros)
@@ -964,9 +852,7 @@ function App() {
                           <option value={2}>2x de R$ {(valorTotal / 2).toFixed(2).replace('.', ',')}</option>
                           <option value={3}>3x de R$ {(valorTotal / 3).toFixed(2).replace('.', ',')}</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">
-                          * Taxas de cartão aplicadas ao valor total
-                        </p>
+                        <p className="text-xs text-gray-500 mt-1">* Taxas de cartão aplicadas ao valor total</p>
                       </div>
                     )}
 
@@ -975,7 +861,7 @@ function App() {
                       <div className="text-center" translate="no">
                         <h4 className="text-lg font-bold text-orange-800 mb-1">Valor Total</h4>
                         <div className="text-sm text-gray-600 mb-1">
-                          1 aluno × R$ 30,00
+                          1 aluno × R$ {formData.paymentMethod === 'credit' ? '35,00' : '30,00'}
                         </div>
                         <div className="text-2xl font-bold text-orange-900">
                           R$ {valorTotal.toFixed(2).replace('.', ',')}
@@ -986,9 +872,7 @@ function App() {
                           </div>
                         )}
                         {formData.paymentMethod === 'credit' && (
-                          <div className="text-xs text-orange-600 mt-1">
-                            (inclui taxas do cartão)
-                          </div>
+                          <div className="text-xs text-orange-600 mt-1">(inclui taxas do cartão)</div>
                         )}
                       </div>
                     </div>
@@ -1024,11 +908,8 @@ function App() {
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Entre em Contato</h2>
-            <p className="text-lg text-muted-foreground">
-              Tire suas dúvidas conosco
-            </p>
+            <p className="text-lg text-muted-foreground">Tire suas dúvidas conosco</p>
           </div>
-
           <div className="grid md:grid-cols-2 gap-8">
             <Card className="card-hover">
               <CardHeader>
@@ -1059,12 +940,8 @@ function App() {
 
       <footer className="bg-blue-900 text-white py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm">
-            © 2026 Escola Centro Educacional Amadeus. Todos os direitos reservados.
-          </p>
-          <p className="text-xs mt-2 opacity-80" translate="no">
-            Barco Escola Chama Maré — Rio Potengi — 03 de Março de 2026
-          </p>
+          <p className="text-sm">© 2026 Escola Centro Educacional Amadeus. Todos os direitos reservados.</p>
+          <p className="text-xs mt-2 opacity-80" translate="no">Barco Escola Chama Maré — Rio Potengi — 03 de Março de 2026</p>
         </div>
       </footer>
     </div>
