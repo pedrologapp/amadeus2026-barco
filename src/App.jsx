@@ -118,7 +118,7 @@ function App() {
         .ilike('nome_completo', `%${searchTerm}%`)
         .in('serie', SERIES_DISPONIVEIS);
 
-      query = query.in('serie', ['6º Ano','7º Ano','8º Ano','9º Ano']);
+      query = query.in('serie', ['8º Ano','9º Ano']);
       
       if (selectedSerie) {
         query = query.eq('serie', selectedSerie);
@@ -877,6 +877,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
